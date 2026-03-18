@@ -4,60 +4,67 @@ Parametric OpenSCAD (`.scad`) design files for all 3D-printed components.
 
 ---
 
-## ★ 3-Finger Cable-Driven Robotic Hand (main design)
+## ★ 3-Finger Cable-Driven Robotic Hand – Bellows-Style Joints (main design)
 
 **File:** [`robotic_hand_3finger.scad`](robotic_hand_3finger.scad)
 
-A complete, self-contained parametric design for a 3-finger (thumb, index, middle) cable-driven robotic hand.
+A complete, self-contained parametric design for a 3-finger (thumb, index, middle)
+cable-driven robotic hand with **bellows/accordion-style flexible joints**.
+A star/sunburst-pattern web connects each pair of cylindrical segments.
+Two cables per finger drive flexion; elastic bands return fingers to open position.
+Designed for a 127 cm humanoid robot (arm Ø ≈ 63 mm).
+
+Reference video: <https://youtu.be/r62dPoS-24s>
 
 | Feature | Value |
 |---------|-------|
-| Palm size | 80 × 60 × 20 mm |
-| Segment cross-section | Cylindrical, Ø 15 mm |
-| Proximal phalanx | 40 mm |
-| Middle phalanx | 25 mm |
-| Distal phalanx | 20 mm |
-| Cable diameter | 1.5 mm |
-| Hinge pin | Ø 2 mm |
+| Palm size | 100 × 80 × 30 mm |
+| Segment cross-section | Cylindrical, Ø 18 mm |
+| Segment length | 25 mm (uniform) |
+| Segments per finger | 4 (configurable to 5) |
+| Bellows joints per finger | 3 (6-spoke star pattern) |
+| Total finger length | ~125 mm (with tip dome) |
+| Cables per finger | **2 × Ø 2 mm** |
+| Elastic return channel | Ø 1.8 mm (dorsal side) |
 | Servo (1 per finger) | SG90 / MG90S class (9–15 g) |
-| Material | PLA or ABS |
+| Arm interface | Ø 63 mm saddle + 4 × M4 bolts |
+| Material | PLA (rigid) / TPU optional for bellows |
 
 **Modules inside the file:**
 
 | Module | Description |
 |--------|-------------|
-| `rounded_box` | Utility – rounded-corner box via hull of spheres |
-| `hinge_fork` | Female two-arm fork at distal end of each segment |
-| `hinge_tongue` | Male single-blade tongue at proximal end |
-| `finger_segment` | Parametric cylindrical phalanx with cable + elastic channels |
-| `proximal_segment` | First phalanx (palm socket end, 40 mm) |
-| `middle_segment` | Second phalanx (tongue–fork, 25 mm) |
-| `distal_segment` | Third phalanx with rounded fingertip (20 mm) |
-| `hinge_pin` | 2 mm pin visualisation |
-| `single_finger` | One complete finger chain with optional tendon line |
-| `servo_motor_block` | Servo placeholder for assembly visualisation |
-| `palm_base` | 80 × 60 × 20 mm palm with bosses, servo pockets, cable channels |
+| `rounded_box` | Utility – rounded-corner box via hull of cylinders |
+| `bellows_profile` | 2-D star/sunburst cross-section (hub + 6 radial spokes) |
+| `bellows_joint` | Flexible accordion connector: end-collars + star body + cable bores |
+| `finger_segment` | Rigid cylindrical segment with 2 cable bores, 1 elastic bore, optional tip dome |
+| `single_finger` | One complete finger (4 segments + 3 bellows joints) with cable/elastic visualisation |
+| `servo_motor_block` | SG90/MG90S servo placeholder for assembly visualisation |
+| `palm_base` | 100 × 80 × 30 mm palm with knuckle bosses, servo pockets, cable routing, wrist bolts |
 | `robotic_hand_3finger` | **Top-level assembly** – palm + 3 fingers + servos |
 
 **Key parameters at top of file:**
 
 ```openscad
-prox_len  = 40;   // proximal phalanx length (mm)
-mid_len   = 25;   // middle phalanx length (mm)
-dist_len  = 20;   // distal phalanx length (mm)
-seg_od    = 15;   // segment outer diameter (mm)
-cable_d   = 1.5;  // cable diameter (mm)
-palm_w    = 80;   // palm width (mm)
-palm_d    = 60;   // palm depth (mm)
-palm_h    = 20;   // palm height (mm)
+seg_d     = 18;   // segment outer diameter (mm)
+seg_len   = 25;   // segment length (mm)
+seg_wall  = 2.5;  // wall thickness (mm)
+num_segs  = 4;    // segments per finger
+joint_len = 8;    // bellows joint length (mm)
+n_spokes  = 6;    // star-pattern spokes in each joint
+cable_d   = 2.0;  // cable diameter (mm)  — 2 cables per finger
+palm_w    = 100;  // palm width (mm)
+palm_d    = 80;   // palm depth (mm)
+palm_h    = 30;   // palm height/thickness (mm)
+arm_d     = 63;   // forearm tube diameter for arm interface (mm)
 ```
 
 Toggle display flags before rendering:
 
 ```openscad
-SHOW_PINS    = true;   // show hinge pin cylinders
-SHOW_TENDONS = true;   // draw tendon cable lines
 SHOW_SERVOS  = true;   // show servo motor blocks
+SHOW_CABLES  = true;   // draw cable guide lines (red)
+SHOW_ELASTIC = true;   // draw elastic band line (green)
 ```
 
 ---
@@ -220,23 +227,29 @@ $fs = 1;    // fragment size in mm
 
 ---
 
-## Hand Mechanics
+## Hand Mechanics (Bellows-Style Finger)
 
 ```
-Servo horn → tendon_pulley (3 grooves)
-                │
-       ┌────────┼────────┐
-       │        │        │
-  Finger 1  Finger 2  Finger 3
-  (tendon runs through each segment top hole)
-  
-  Elastic bands on bottom holes return finger to open position.
+Servo horn (in palm)
+      │
+      ╠══ Cable 1 ══╗     ← 2 mm Dyneema/steel cable
+      ╠══ Cable 2 ══╣
+      │             │
+  ┌───────┐  ┌─────────┐  ┌───────┐  ┌─────────┐  ┌───────┐  ┌─────────┐  ┌─────────┐
+  │ Seg 0 │··│  Bell.  │··│ Seg 1 │··│  Bell.  │··│ Seg 2 │··│  Bell.  │··│ Seg 3  ●│
+  │(base) │  │(6-spoke)│  │       │  │(6-spoke)│  │       │  │(6-spoke)│  │  (tip)  │
+  └───────┘  └─────────┘  └───────┘  └─────────┘  └───────┘  └─────────┘  └─────────┘
+
+  ● = hemisphere dome cap with cable-anchor pockets
+  Bellows joint = solid end-collars + 6 radial spokes (star cross-section)
+  Cable bores pass through every segment and joint (palmar side, −Y)
+  Elastic bore on dorsal side (+Y) returns finger to open pose
 ```
 
-- **Closing (namaste pose):** Servo rotates, pulley winds tendon, all 3 fingers curl simultaneously
-- **Opening (release):** Servo reverses, elastic bands spring fingers back open
-- **Tendon material:** 0.25 mm monofilament fishing line
-- **Elastic material:** 1 mm flat elastic band
+- **Flexion (grasp):** Servo pulls cable → bellows joints compress on palmar side → finger curls
+- **Extension (release):** Servo reverses or cable slackens → elastic band springs finger open
+- **Cable material:** 2 mm Dyneema braided line or 2 mm steel cable
+- **Elastic material:** 1.5 mm round elastic cord
 
 ---
 
@@ -267,17 +280,14 @@ Servo horn → tendon_pulley (3 grooves)
 | Motor bracket | 2 | 16 g | 10 min |
 | Caster wheel bracket | 1 | 12 g | 7 min |
 | Pan-tilt head mount | 1 | 18 g | 10 min |
-| Finger proximal | 6 | 24 g | 18 min |
-| Finger middle | 6 | 18 g | 15 min |
-| Finger distal | 6 | 15 g | 12 min |
-| Finger fingertip | 6 | 12 g | 12 min |
-| Palm structure | 2 | 50 g | 24 min |
-| Tendon pulley | 2 | 10 g | 8 min |
+| Finger segment (Ø18 mm × 25 mm) | 12 | ~4 g ea. | ~3 min ea. |
+| Bellows joint (6-spoke star) | 9 | ~1 g ea. | ~1.5 min ea. |
+| Palm base (100 × 80 × 30 mm) | 1 | ~40 g | ~18 min |
 | Head shell | 1 | 85 g | 25 min |
 | Head internal bracket | 1 | 12 g | 8 min |
 | Torso base connector | 4 | 15 g | 8 min |
 | Elastic band anchor | 8 | 16 g | 16 min |
-| **TOTAL** | **50** | **~373 g** | **~181 min** |
+| **TOTAL** | **44** | **~385 g** | **~185 min** |
 
 ---
 
