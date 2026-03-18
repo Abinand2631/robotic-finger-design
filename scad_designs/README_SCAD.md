@@ -1,13 +1,76 @@
-# OpenSCAD Design Files – Small Humanoid Welcoming Robot
+# OpenSCAD Design Files
 
-Parametric OpenSCAD (`.scad`) design files for all 3D-printed components of the small humanoid welcoming robot. Only joints, brackets, fingers, and head are 3D-printed; arms and torso use PVC pipes, and the base uses a welded GI square-pipe frame.
+Parametric OpenSCAD (`.scad`) design files for all 3D-printed components.
 
 ---
+
+## ★ 3-Finger Cable-Driven Robotic Hand (main design)
+
+**File:** [`robotic_hand_3finger.scad`](robotic_hand_3finger.scad)
+
+A complete, self-contained parametric design for a 3-finger (thumb, index, middle) cable-driven robotic hand.
+
+| Feature | Value |
+|---------|-------|
+| Palm size | 80 × 60 × 20 mm |
+| Segment cross-section | Cylindrical, Ø 15 mm |
+| Proximal phalanx | 40 mm |
+| Middle phalanx | 25 mm |
+| Distal phalanx | 20 mm |
+| Cable diameter | 1.5 mm |
+| Hinge pin | Ø 2 mm |
+| Servo (1 per finger) | SG90 / MG90S class (9–15 g) |
+| Material | PLA or ABS |
+
+**Modules inside the file:**
+
+| Module | Description |
+|--------|-------------|
+| `rounded_box` | Utility – rounded-corner box via hull of spheres |
+| `hinge_fork` | Female two-arm fork at distal end of each segment |
+| `hinge_tongue` | Male single-blade tongue at proximal end |
+| `finger_segment` | Parametric cylindrical phalanx with cable + elastic channels |
+| `proximal_segment` | First phalanx (palm socket end, 40 mm) |
+| `middle_segment` | Second phalanx (tongue–fork, 25 mm) |
+| `distal_segment` | Third phalanx with rounded fingertip (20 mm) |
+| `hinge_pin` | 2 mm pin visualisation |
+| `single_finger` | One complete finger chain with optional tendon line |
+| `servo_motor_block` | Servo placeholder for assembly visualisation |
+| `palm_base` | 80 × 60 × 20 mm palm with bosses, servo pockets, cable channels |
+| `robotic_hand_3finger` | **Top-level assembly** – palm + 3 fingers + servos |
+
+**Key parameters at top of file:**
+
+```openscad
+prox_len  = 40;   // proximal phalanx length (mm)
+mid_len   = 25;   // middle phalanx length (mm)
+dist_len  = 20;   // distal phalanx length (mm)
+seg_od    = 15;   // segment outer diameter (mm)
+cable_d   = 1.5;  // cable diameter (mm)
+palm_w    = 80;   // palm width (mm)
+palm_d    = 60;   // palm depth (mm)
+palm_h    = 20;   // palm height (mm)
+```
+
+Toggle display flags before rendering:
+
+```openscad
+SHOW_PINS    = true;   // show hinge pin cylinders
+SHOW_TENDONS = true;   // draw tendon cable lines
+SHOW_SERVOS  = true;   // show servo motor blocks
+```
+
+---
+
+## Humanoid Robot Support Components
+
+This repository also contains OpenSCAD design files for a small humanoid welcoming robot (a separate project that shares the same repository). These components are listed below for reference.
 
 ## Directory Structure
 
 ```
 scad_designs/
+├── robotic_hand_3finger.scad         – ★ 3-finger cable-driven hand (main design)
 ├── joints/
 │   ├── shoulder_joint_bracket.scad   – MG996R servo mount + PVC pipe adapter
 │   ├── elbow_joint_bracket.scad      – MG90S servo mount + dual PVC adapters
